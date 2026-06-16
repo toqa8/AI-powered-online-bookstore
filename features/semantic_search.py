@@ -22,7 +22,8 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 
 client = chromadb.PersistentClient(path=CHROMA_PATH)
 
-books_collection = client.get_collection("books")
+def get_books_collection():
+    return client.get_collection("books")
 
 
 # =========================
@@ -33,6 +34,8 @@ def semantic_search(query, top_k=2):
 
     query_embedding = model.encode(query).tolist()
 
+    books_collection = get_books_collection()
+    
     results = books_collection.query(
         query_embeddings=[query_embedding],
         n_results=top_k

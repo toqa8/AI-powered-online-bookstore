@@ -12,6 +12,19 @@ from features.why_recommended import get_why_recommended
 from features.semantic_search import semantic_search
 from features.ai_moderation import filter_reviews
 
+import subprocess
+import sys
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Build ChromaDB if not exists or empty
+chroma_path = os.path.join(BASE_DIR, "chroma_db")
+marker = os.path.join(BASE_DIR, "chroma_db", ".setup_done")
+
+if not os.path.exists(marker):
+    subprocess.run([sys.executable, os.path.join(BASE_DIR, "setup_chroma.py")], check=True)
+    open(marker, "w").close()
+
 load_dotenv()
 
 # =========================
@@ -34,16 +47,16 @@ st.markdown("""
 
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
-        background-color: #0f0f0f;
-        color: #e8e0d0;
+        background-color: #faf7f2;
+        color: #2c2c2c;
     }
 
-    .main { background-color: #0f0f0f; }
+    .main { background-color: #faf7f2; }
 
     /* Search bar */
     .search-wrapper {
-        background: #1a1a1a;
-        border: 1px solid #2e2e2e;
+        background: #ffffff;
+        border: 1px solid #e0d8cc;
         border-radius: 12px;
         padding: 1.2rem 1.5rem;
         margin-bottom: 2rem;
@@ -54,16 +67,16 @@ st.markdown("""
         font-family: 'Playfair Display', serif;
         font-size: 1.4rem;
         font-weight: 600;
-        color: #c9a96e;
+        color: #8b6914;
         margin-bottom: 1rem;
-        border-bottom: 1px solid #2e2e2e;
+        border-bottom: 1px solid #e0d8cc;
         padding-bottom: 0.5rem;
     }
 
     /* Book card */
     .book-card {
-        background: #1a1a1a;
-        border: 1px solid #2e2e2e;
+        background: #ffffff;
+        border: 1px solid #e0d8cc;
         border-radius: 12px;
         padding: 1.2rem;
         margin-bottom: 1rem;
@@ -71,14 +84,14 @@ st.markdown("""
     }
 
     .book-card:hover {
-        border-color: #c9a96e;
+        border-color: #8b6914;
     }
 
     .book-title {
         font-family: 'Playfair Display', serif;
         font-size: 1.05rem;
         font-weight: 600;
-        color: #e8e0d0;
+        color: #8b6914;
         margin-bottom: 0.2rem;
     }
 
@@ -95,8 +108,8 @@ st.markdown("""
 
     .genre-tag {
         display: inline-block;
-        background: #2e2e2e;
-        color: #c9a96e;
+        background: #f0e8d8;
+        color: #8b6914;
         border-radius: 20px;
         padding: 2px 10px;
         font-size: 0.72rem;
@@ -106,8 +119,8 @@ st.markdown("""
 
     /* Profile card */
     .profile-card {
-        background: #1a1a1a;
-        border: 1px solid #2e2e2e;
+        background: #ffffff;
+        border: 1px solid #e0d8cc;
         border-radius: 12px;
         padding: 1.2rem;
         margin-bottom: 1.5rem;
@@ -116,13 +129,13 @@ st.markdown("""
     .profile-name {
         font-family: 'Playfair Display', serif;
         font-size: 1.1rem;
-        color: #c9a96e;
+        color: #8b6914;
         margin-bottom: 0.8rem;
     }
 
     .profile-label {
         font-size: 0.72rem;
-        color: #666;
+        color: #999;
         text-transform: uppercase;
         letter-spacing: 0.08em;
         margin-bottom: 0.3rem;
@@ -130,14 +143,14 @@ st.markdown("""
 
     .profile-value {
         font-size: 0.85rem;
-        color: #b0a898;
+        color: #555;
         margin-bottom: 0.8rem;
     }
 
     /* Review tags */
     .safe-badge {
-        background: #1a2e1a;
-        color: #4caf50;
+        background: #e8f5e9;
+        color: #2e7d32;
         border-radius: 20px;
         padding: 2px 10px;
         font-size: 0.72rem;
@@ -145,8 +158,8 @@ st.markdown("""
     }
 
     .unsafe-badge {
-        background: #2e1a1a;
-        color: #ef5350;
+        background: #ffebee;
+        color: #c62828;
         border-radius: 20px;
         padding: 2px 10px;
         font-size: 0.72rem;
@@ -154,13 +167,13 @@ st.markdown("""
     }
 
     .review-item {
-        background: #141414;
-        border-left: 3px solid #2e2e2e;
+        background: #fafafa;
+        border-left: 3px solid #e0d8cc;
         padding: 0.6rem 0.8rem;
         border-radius: 0 8px 8px 0;
         margin-bottom: 0.5rem;
         font-size: 0.85rem;
-        color: #b0a898;
+        color: #444;
     }
 
     .review-safe { border-left-color: #4caf50; }
@@ -168,41 +181,41 @@ st.markdown("""
 
     /* Why recommended box */
     .why-box {
-        background: #141414;
-        border: 1px solid #c9a96e33;
+        background: #fffbf4;
+        border: 1px solid #e8d8a0;
         border-radius: 8px;
         padding: 0.8rem 1rem;
         font-size: 0.83rem;
-        color: #b0a898;
+        color: #555;
         margin-top: 0.5rem;
         line-height: 1.6;
     }
 
-    /* Strealit overrides */
+    /* Streamlit overrides */
     .stButton > button {
         background: transparent;
-        border: 1px solid #2e2e2e;
-        color: #c9a96e;
+        border: 1px solid #e0d8cc;
+        color: #8b6914;
         border-radius: 8px;
         font-size: 0.8rem;
         padding: 0.3rem 0.8rem;
     }
 
     .stButton > button:hover {
-        border-color: #c9a96e;
-        background: #1a1a1a;
+        border-color: #8b6914;
+        background: #faf7f2;
     }
 
     div[data-testid="stExpander"] {
-        background: #1a1a1a;
-        border: 1px solid #2e2e2e;
+        background: #ffffff;
+        border: 1px solid #e0d8cc;
         border-radius: 12px;
     }
 
     .stTextInput > div > div > input {
-        background: #141414;
-        border: 1px solid #2e2e2e;
-        color: #e8e0d0;
+        background: #ffffff;
+        border: 1px solid #e0d8cc;
+        color: #2c2c2c;
         border-radius: 8px;
     }
 </style>
@@ -279,14 +292,14 @@ with left_col:
     authors_str = ", ".join(user_profile.get("preferred_authors", []))
     history_titles = [b["title"] for b in books if b["id"] in user_profile.get("reading_history", [])]
 
-    st.markdown(f'<div class="profile-card"><div class="profile-name">📖 {user_profile["name"]}</div></div>', unsafe_allow_html=True)
-    
+    st.markdown(f'<div class="profile-card"><div class="profile-name"> {user_profile["name"]}</div></div>', unsafe_allow_html=True)
+
     st.markdown("**Favourite Genres**")
     st.caption(genres_str)
-    
+
     st.markdown("**Favourite Authors**")
     st.caption(authors_str)
-    
+
     st.markdown("**Reading History**")
     for title in history_titles:
         st.caption(f"• {title}")
@@ -351,6 +364,7 @@ with main_col:
             <div class="book-meta">🏷️ {themes_str}</div>
         </div>
         """, unsafe_allow_html=True)
+
         col_btn, col_space = st.columns([1, 4])
         with col_btn:
             if st.button(f"💡 Why this?", key=f"why_{book_id}"):
@@ -379,7 +393,7 @@ with right_col:
         book_id = book["id"]
         has_reviews = book_id in reviews
 
-        label = f"{'📖' if has_reviews else '📘'} {book['title']}"
+        label = f"{'📘'} {book['title']}"
 
         with st.expander(label):
             st.markdown(f"**{book['author']}**")
@@ -393,7 +407,7 @@ with right_col:
             audience = book.get("audience", "")
             if isinstance(audience, list):
                 audience = ", ".join(audience)
-                themes_str = ", ".join(book.get("themes", []))
+            themes_str = ", ".join(book.get("themes", []))
 
             if audience:
                 st.markdown(f"🎯 *Audience:* {audience}")
